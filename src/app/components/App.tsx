@@ -19,6 +19,14 @@ function App() {
     parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*');
   };
 
+  const onReplace = () => {
+    parent.postMessage({ pluginMessage: { type: 'replace-labels' } }, '*');
+  };
+
+  const onUndo = () => {
+    parent.postMessage({ pluginMessage: { type: 'undo' } }, '*');
+  };
+
   React.useEffect(() => {
     // This is how we read messages sent from the plugin controller
     window.onmessage = (event) => {
@@ -40,6 +48,8 @@ function App() {
         Create
       </button>
       <button onClick={onCancel}>Cancel</button>
+      <button onClick={onReplace}>Replace Labels</button>
+      <button onClick={onUndo}>Undo Changes</button>
     </div>
   );
 }

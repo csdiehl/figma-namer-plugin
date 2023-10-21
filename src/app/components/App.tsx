@@ -1,23 +1,8 @@
 import React from 'react';
-import logo from '../assets/logo.svg';
 import '../styles/ui.css';
 
 function App() {
   const textbox = React.useRef<HTMLInputElement>(undefined);
-
-  const countRef = React.useCallback((element: HTMLInputElement) => {
-    if (element) element.value = '5';
-    textbox.current = element;
-  }, []);
-
-  const onCreate = () => {
-    const count = parseInt(textbox.current.value, 10);
-    parent.postMessage({ pluginMessage: { type: 'create-rectangles', count } }, '*');
-  };
-
-  const onCancel = () => {
-    parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*');
-  };
 
   const onReplace = () => {
     parent.postMessage({ pluginMessage: { type: 'replace-labels' } }, '*');
@@ -39,17 +24,15 @@ function App() {
 
   return (
     <div>
-      <img src={logo} />
-      <h2>Rectangle Creator</h2>
-      <p>
-        Count: <input ref={countRef} />
-      </p>
-      <button id="create" onClick={onCreate}>
-        Create
-      </button>
-      <button onClick={onCancel}>Cancel</button>
-      <button onClick={onReplace}>Replace Labels</button>
-      <button onClick={onUndo}>Undo Changes</button>
+      <h2>Rename your labels</h2>
+      <label htmlFor="action-input">Action Button:</label>
+      <input id="action-input" type="text" ref={textbox}></input>
+      <label htmlFor="square-input">Square Button:</label>
+      <input id="square-input" type="text" ref={textbox}></input>
+      <div style={{ display: 'flex' }}>
+        <button onClick={onReplace}>Replace Labels</button>
+        <button onClick={onUndo}>Undo Changes</button>
+      </div>
     </div>
   );
 }

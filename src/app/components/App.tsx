@@ -12,6 +12,7 @@ function App() {
   const actionBox = React.useRef<HTMLInputElement>(undefined);
   const homeBox = React.useRef<HTMLInputElement>(undefined);
 
+  // track whether labels have been changed. Make user undo changes before modifying form input
   const [changed, setChanged] = useState(false);
 
   function formatNameData() {
@@ -26,16 +27,23 @@ function App() {
   const onReplace = () => {
     setChanged(true);
     const nameData = formatNameData();
-    console.log(nameData);
     parent.postMessage({ pluginMessage: { type: 'replace-labels', data: nameData } }, '*');
   };
 
   const onUndo = () => {
     setChanged(false);
+
     const nameData = formatNameData();
+    console.log(nameData);
+
     const reverseNames = Object.entries(nameData).map(([key, value]) => [value, key]);
     const namesFlipped = Object.fromEntries(reverseNames);
     parent.postMessage({ pluginMessage: { type: 'undo', data: namesFlipped } }, '*');
+
+    // clear form input
+    actionBox.current.value = '';
+    squareBox.current.value = '';
+    homeBox.current.value = '';
   };
 
   React.useEffect(() => {
@@ -70,8 +78,18 @@ function App() {
       <label htmlFor="home-input">Home Tile:</label>
       <input disabled={changed} placeholder={defaultNames['list #1']} id="home-input" type="text" ref={homeBox}></input>
       <div style={{ display: 'flex' }}>
-        <button onClick={onReplace}>Replace Labels</button>
-        <button onClick={onUndo}>Undo Changes</button>
+        <button
+          style={{ backgroundColor: changed ? '#FFF' : '#000', color: changed ? '#000' : '#FFF' }}
+          onClick={onReplace}
+        >
+          Replace Labels
+        </button>
+        <button
+          style={{ backgroundColor: !changed ? '#FFF' : '#000', color: !changed ? '#000' : '#FFF' }}
+          onClick={onUndo}
+        >
+          Undo Changes
+        </button>
       </div>
     </div>
   );

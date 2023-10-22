@@ -23,11 +23,7 @@ figma.ui.onmessage = (msg) => {
   }
 
   if (msg.type === 'replace-labels' || msg.type === 'undo') {
-    const namesToReplace = {
-      'Take action': 'Button',
-      'scooter button': 'Elements / Service Tiles',
-      'list #1': 'list item',
-    };
+    const namesToReplace = msg.data;
 
     figma.skipInvisibleInstanceChildren = true;
     const nodes = figma.currentPage.findAllWithCriteria({
@@ -39,21 +35,14 @@ figma.ui.onmessage = (msg) => {
 
       if (msg.type === 'replace-labels') {
         if (Object.keys(namesToReplace).includes(name)) {
-          console.log(n.componentProperties);
-          // n.setProperties({ name: namesToReplace[name] });
           n.name = namesToReplace[name];
-          console.log('changed to:', n.name);
           n.setPluginData('status', 'changed');
         }
       }
 
       if (msg.type === 'undo') {
-        const reverseNames = Object.entries(namesToReplace).map(([key, value]) => [value, key]);
-        const namesFlipped = Object.fromEntries(reverseNames);
-
-        console.log(namesFlipped);
         if (n.getPluginData('status') === 'changed') {
-          n.name = namesFlipped[name];
+          n.name = namesToReplace[name];
           n.setPluginData('status', 'original');
         }
       }

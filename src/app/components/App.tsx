@@ -1,25 +1,44 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../styles/ui.css';
+
+const defaultNames = {
+  'Take action': 'Button',
+  'scooter button': 'Elements / Service Tiles',
+  'list #1': 'list item',
+};
 
 function App() {
   const squareBox = React.useRef<HTMLInputElement>(undefined);
   const actionBox = React.useRef<HTMLInputElement>(undefined);
   const homeBox = React.useRef<HTMLInputElement>(undefined);
 
-  const [error, setError] = useState(false);
+  function formatNameData() {
+    return {
+      'Take action': actionBox.current?.value || defaultNames['Take action'],
+      'scooter button': squareBox.current?.value || defaultNames['scooter button'],
+      'list #1': homeBox.current?.value || defaultNames['list #1'],
+    };
+  }
 
   const onReplace = () => {
     const nameData = {
-      'Take action': actionBox.current.value,
-      'scooter button': squareBox.current.value,
-      'list #1': homeBox.current.value,
+      'Take action': actionBox.current?.value || defaultNames['Take action'],
+      'scooter button': squareBox.current?.value || defaultNames['scooter button'],
+      'list #1': homeBox.current?.value || defaultNames['list #1'],
     };
     console.log(nameData);
-    parent.postMessage({ pluginMessage: { type: 'replace-labels' } }, '*');
+    parent.postMessage({ pluginMessage: { type: 'replace-labels', data: nameData } }, '*');
   };
 
   const onUndo = () => {
-    parent.postMessage({ pluginMessage: { type: 'undo' } }, '*');
+    const nameData = {
+      'Take action': actionBox.current?.value || 'Button',
+      'scooter button': squareBox.current?.value || 'Elements / Service Tiles',
+      'list #1': homeBox.current?.value || 'list item',
+    };
+    const reverseNames = Object.entries(nameData).map(([key, value]) => [value, key]);
+    const namesFlipped = Object.fromEntries(reverseNames);
+    parent.postMessage({ pluginMessage: { type: 'undo', data: namesFlipped } }, '*');
   };
 
   React.useEffect(() => {

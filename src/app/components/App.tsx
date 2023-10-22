@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../styles/ui.css';
 
 const defaultNames = {
@@ -12,7 +12,10 @@ function App() {
   const actionBox = React.useRef<HTMLInputElement>(undefined);
   const homeBox = React.useRef<HTMLInputElement>(undefined);
 
+  const [changed, setChanged] = useState(false);
+
   function formatNameData() {
+    // this will handle empty strings. TODO - add stricter form validation
     return {
       'Take action': actionBox.current?.value || defaultNames['Take action'],
       'scooter button': squareBox.current?.value || defaultNames['scooter button'],
@@ -21,21 +24,15 @@ function App() {
   }
 
   const onReplace = () => {
-    const nameData = {
-      'Take action': actionBox.current?.value || defaultNames['Take action'],
-      'scooter button': squareBox.current?.value || defaultNames['scooter button'],
-      'list #1': homeBox.current?.value || defaultNames['list #1'],
-    };
+    setChanged(true);
+    const nameData = formatNameData();
     console.log(nameData);
     parent.postMessage({ pluginMessage: { type: 'replace-labels', data: nameData } }, '*');
   };
 
   const onUndo = () => {
-    const nameData = {
-      'Take action': actionBox.current?.value || 'Button',
-      'scooter button': squareBox.current?.value || 'Elements / Service Tiles',
-      'list #1': homeBox.current?.value || 'list item',
-    };
+    setChanged(false);
+    const nameData = formatNameData();
     const reverseNames = Object.entries(nameData).map(([key, value]) => [value, key]);
     const namesFlipped = Object.fromEntries(reverseNames);
     parent.postMessage({ pluginMessage: { type: 'undo', data: namesFlipped } }, '*');
@@ -55,11 +52,23 @@ function App() {
     <div>
       <h2>Rename your labels</h2>
       <label htmlFor="action-input">Action Button:</label>
-      <input id="action-input" type="text" ref={actionBox}></input>
+      <input
+        disabled={changed}
+        placeholder={defaultNames['Take action']}
+        id="action-input"
+        type="text"
+        ref={actionBox}
+      ></input>
       <label htmlFor="square-input">Square Button:</label>
-      <input id="square-input" type="text" ref={squareBox}></input>
+      <input
+        disabled={changed}
+        placeholder={defaultNames['scooter button']}
+        id="square-input"
+        type="text"
+        ref={squareBox}
+      ></input>
       <label htmlFor="home-input">Home Tile:</label>
-      <input id="home-input" type="text" ref={homeBox}></input>
+      <input disabled={changed} placeholder={defaultNames['list #1']} id="home-input" type="text" ref={homeBox}></input>
       <div style={{ display: 'flex' }}>
         <button onClick={onReplace}>Replace Labels</button>
         <button onClick={onUndo}>Undo Changes</button>
